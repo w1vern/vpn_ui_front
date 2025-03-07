@@ -11,7 +11,7 @@ export default defineNuxtConfig({
       tailwindcss()
     ]
   },
-  modules: ['@primevue/nuxt-module'],
+  modules: ['@primevue/nuxt-module', '@nuxt/image', '@nuxt/icon'],
   primevue: {
     options: {
     theme: {
