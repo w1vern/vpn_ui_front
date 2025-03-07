@@ -11,7 +11,12 @@ export default defineNuxtConfig({
       tailwindcss()
     ]
   },
-  modules: ['@primevue/nuxt-module', '@nuxt/image', '@nuxt/icon'],
+  modules: [
+    '@primevue/nuxt-module',
+    '@nuxt/image',
+    '@nuxt/icon',
+    '@pinia/nuxt'
+  ],
   primevue: {
     options: {
     theme: {
