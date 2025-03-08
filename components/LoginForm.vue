@@ -31,28 +31,38 @@ const telegramID = ref('');
 const telegramCode = ref('');
 const toast = useToast();
 
-interface fetchResponseScheme {
+interface SuccessResponseScheme {
   message?: string;
+}
+
+interface ErrorResponseScheme {
   detail?: string;
 }
 
 async function sendCode() {
   try {
-    const response = await $fetch<fetchResponseScheme>("/api/auth/tg_code", {
+    const response = await $fetch<SuccessResponseScheme>("/api/auth/tg_code", {
       method: "POST",
       body: JSON.stringify({ tg_id: telegramID.value }),
     })
 
+    toast.add({ severity: "success", summary: 'Success', detail: response.message });
     isCodeSended.value = true;
     sendCodeText.value = 'Resend Code';
-  } catch (error) {
-    toast.add({ severity: 'error', summary: 'Error', detail: "Try checking Telegram ID" });
+  } catch (error: any) {
+    if (error.response && error.response?.status === 401) {
+      const errorData = error.data as ErrorResponseScheme;
+
+      toast.add({ severity: 'error', summary: 'Error', detail: errorData.detail });
+    } else {
+      toast.add({ severity: 'error', summary: 'Error', detail: "Unknown Error" });
+    }
   }
 }
 
 async function onFormSubmit(form_data: FormSubmitEvent) {
   try {
-    const response = await $fetch<fetchResponseScheme>("/api/auth/login", {
+    const response = await $fetch<SuccessResponseScheme>("/api/auth/login", {
       method: "POST",
       body: JSON.stringify({
         tg_id: telegramID.value,
@@ -60,9 +70,15 @@ async function onFormSubmit(form_data: FormSubmitEvent) {
       }),
     })
 
-    toast.add({ severity: 'success', summary: 'Success', detail: "You're logged in!" });
-  } catch (error) {
-    toast.add({ severity: 'error', summary: 'Error', detail: "Try checking Secret Code" });
+    toast.add({ severity: 'success', summary: 'Success', detail: response.message });
+  } catch (error: any) {
+    if (error.response && error.response?.status === 401) {
+      const errorData = error.data as ErrorResponseScheme;
+
+      toast.add({ severity: 'error', summary: 'Error', detail: errorData.detail });
+    } else {
+      toast.add({ severity: 'error', summary: 'Error', detail: "Unknown Error" });
+    }
   }
 }
 </script>
