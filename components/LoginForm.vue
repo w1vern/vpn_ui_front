@@ -9,7 +9,7 @@
         </FloatLabel>
         <div v-if="isCodeSended">
           <FloatLabel variant="on">
-            <InputText v-model="telegramCode" id="telegram-secret-input" name="telegram-secret" type="text" />
+            <InputText id="telegram-secret-input" name="telegram-secret" type="text" />
             <label for="telegram-secret-input">Telegram Secret</label>
           </FloatLabel>
         </div>
@@ -24,61 +24,32 @@
 
 <script lang="ts" setup>
 import type { FormSubmitEvent } from '@primevue/forms';
+import { apiAuthFetch } from '~/utils/apiAuth';
 
 const isCodeSended = ref(false);
 const sendCodeText = ref('Send Code');
 const telegramID = ref('');
-const telegramCode = ref('');
 const toast = useToast();
 
-interface SuccessResponseScheme {
-  message?: string;
-}
-
-interface ErrorResponseScheme {
-  detail?: string;
-}
-
 async function sendCode() {
-  try {
-    const response = await $fetch<SuccessResponseScheme>("/api/auth/tg_code", {
-      method: "POST",
-      body: JSON.stringify({ tg_id: telegramID.value }),
-    })
-
+  const response = await apiAuthFetch('tg_code', "POST", JSON.stringify({ tg_id: telegramID.value }));
+  if(response.status === 200) {
     toast.add({ severity: "success", summary: 'Success', detail: response.message });
     isCodeSended.value = true;
     sendCodeText.value = 'Resend Code';
-  } catch (error: any) {
-    if (error.response && error.response?.status === 401) {
-      const errorData = error.data as ErrorResponseScheme;
-
-      toast.add({ severity: 'error', summary: 'Error', detail: errorData.detail });
-    } else {
-      toast.add({ severity: 'error', summary: 'Error', detail: "Unknown Error" });
-    }
+  }
+  else {
+    toast.add({ severity: 'error', summary: 'Error', detail: response.message });
   }
 }
 
 async function onFormSubmit(form_data: FormSubmitEvent) {
-  try {
-    const response = await $fetch<SuccessResponseScheme>("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({
-        tg_id: telegramID.value,
-        tg_code: telegramCode.value,
-      }),
-    })
-
-    toast.add({ severity: 'success', summary: 'Success', detail: response.message });
-  } catch (error: any) {
-    if (error.response && error.response?.status === 401) {
-      const errorData = error.data as ErrorResponseScheme;
-
-      toast.add({ severity: 'error', summary: 'Error', detail: errorData.detail });
-    } else {
-      toast.add({ severity: 'error', summary: 'Error', detail: "Unknown Error" });
-    }
+  const response = await apiAuthFetch('login', "POST", JSON.stringify({ tg_id: form_data.values.telegram_id, tg_code: form_data.values.telegram_secret }));
+  if(response.status === 200) {
+    toast.add({ severity: "success", summary: 'Success', detail: response.message });
+  }
+  else {
+    toast.add({ severity: 'error', summary: 'Error', detail: response.message });
   }
 }
 </script>
