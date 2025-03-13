@@ -15,12 +15,13 @@ type fetchMethods = "POST" | "GET" | "PUT" | "DELETE";
 export async function apiAuthFetch(
   route: string,
   method: fetchMethods,
-  bodyJson: string
+  bodyJson: string | undefined
 ): Promise<ResponseScheme> {
   try {
     const response = await $fetch.raw("/api/auth/" + route, {
-      method: "POST",
+      method: method,
       body: bodyJson,
+      credentials: "include",
     });
 
     const data = response._data as { message: string };

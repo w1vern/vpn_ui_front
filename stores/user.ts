@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { apiAuthFetch } from "~/utils/apiAuth";
 
-interface UserDataScheme {
+export interface UserDataScheme {
   id: string;
   telegram_id: string;
   telegram_username: string;
@@ -28,7 +28,7 @@ export const useMyUserStore = defineStore("user", () => {
   const userData = ref<UserDataScheme | null>(null);
 
   const fetchData = async () => {
-    const response = await apiAuthFetch("user_info", "GET", "");
+    const response = await apiAuthFetch("user_info", "GET", undefined);
 
     if (response.status === 200 && response._data) {
       userData.value = response._data as UserDataScheme;
