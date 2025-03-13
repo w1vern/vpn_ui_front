@@ -1,9 +1,7 @@
 <template>
-  <div class="flex flex-col items-center justify-between w-screen h-full">
-    <Toast />
-    <HeaderElement />
-    <LoginForm />
-    <FooterElement />
+  <div>
+    <h1>Hi There!</h1>
+    <NuxtLink to="/login">Log me In</NuxtLink>
   </div>
 </template>
 
